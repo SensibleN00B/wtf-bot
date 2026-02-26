@@ -13,7 +13,6 @@ WORKDIR /home/openclaw/app
 COPY start.sh /home/openclaw/app/start.sh
 RUN chmod +x /home/openclaw/app/start.sh && chown -R openclaw:openclaw /home/openclaw
 
-USER openclaw
 ENV HOME=/home/openclaw
 
 EXPOSE 18789

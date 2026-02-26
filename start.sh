@@ -3,6 +3,16 @@ set -euo pipefail
 
 : "${PORT:=18789}"
 
+echo "START (as root) PORT=$PORT"
+
+mkdir -p /home/openclaw/.codex /home/openclaw/.openclaw
+chown -R openclaw:openclaw /home/openclaw/.codex /home/openclaw/.openclaw || true
+
+exec su -s /bin/bash openclaw -c '
+set -euo pipefail
+
+: "${PORT:=18789}"
+
 echo "HOME=$HOME USER=$(whoami) PORT=$PORT"
 echo "Ensuring dirs..."
 mkdir -p "$HOME/.codex" "$HOME/.openclaw"
@@ -13,7 +23,7 @@ if [[ -z "${CODEX_AUTH_JSON_B64:-}" ]]; then
   exit 1
 fi
 
-echo "$CODEX_AUTH_JSON_B64" | tr -d '\r\n' | base64 -d -i > "$HOME/.codex/auth.json"
+echo "$CODEX_AUTH_JSON_B64" | tr -d '"'"'\r\n'"'"' | base64 -d -i > "$HOME/.codex/auth.json"
 chmod 600 "$HOME/.codex/auth.json"
 echo "Codex auth.json written: $(ls -la "$HOME/.codex/auth.json")"
 
@@ -37,3 +47,4 @@ cat "$CFG"
 
 # --- start gateway ---
 exec openclaw gateway --port "$PORT"
+'

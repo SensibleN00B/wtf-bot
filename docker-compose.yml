@@ -1,0 +1,29 @@
+services:
+  openclaw:
+    image: openclawai/openclaw:PIN_VERSION
+    container_name: openclaw
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:18789:18789"
+
+    volumes:
+      - ~/.openclaw-docker/openclaw:/home/openclaw/.openclaw
+      - ~/.openclaw-docker/codex:/home/openclaw/.codex:ro
+    environment:
+      - HOME=/home/openclaw
+
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+    healthcheck:
+      test: ["CMD", "sh", "-lc", "wget -qO- http://127.0.0.1:18789 >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s

@@ -1,10 +1,11 @@
 FROM node:22-bookworm-slim
 
-RUN useradd -m -u 10001 openclaw
+RUN useradd -m -u 10001 -s /bin/bash openclaw
 
 RUN npm i -g openclaw@latest
 
 WORKDIR /home/openclaw/app
+
 COPY start.sh /home/openclaw/app/start.sh
 RUN chmod +x /home/openclaw/app/start.sh && chown -R openclaw:openclaw /home/openclaw
 

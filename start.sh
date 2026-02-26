@@ -3,14 +3,37 @@ set -euo pipefail
 
 : "${PORT:=18789}"
 
-mkdir -p "$HOME/.codex"
+echo "HOME=$HOME USER=$(whoami) PORT=$PORT"
+echo "Ensuring dirs..."
+mkdir -p "$HOME/.codex" "$HOME/.openclaw"
+
+# --- restore Codex auth.json ---
 if [[ -z "${CODEX_AUTH_JSON_B64:-}" ]]; then
   echo "ERROR: CODEX_AUTH_JSON_B64 is not set"
   exit 1
 fi
-echo "$CODEX_AUTH_JSON_B64" | base64 -d > "$HOME/.codex/auth.json"
+
+echo "$CODEX_AUTH_JSON_B64" | tr -d '\r\n' | base64 -d -i > "$HOME/.codex/auth.json"
 chmod 600 "$HOME/.codex/auth.json"
+echo "Codex auth.json written: $(ls -la "$HOME/.codex/auth.json")"
 
-mkdir -p "$HOME/.openclaw"
+# --- bootstrap OpenClaw config ---
+CFG="$HOME/.openclaw/openclaw.json"
 
+if [[ ! -f "$CFG" ]]; then
+  echo "Bootstrapping OpenClaw config at $CFG"
+  cat > "$CFG" <<JSON
+{
+  "gateway": {
+    "mode": "local"
+  }
+}
+JSON
+fi
+
+echo "OpenClaw config: $(ls -la "$CFG")"
+echo "Config content:"
+cat "$CFG"
+
+# --- start gateway ---
 exec openclaw gateway --port "$PORT"

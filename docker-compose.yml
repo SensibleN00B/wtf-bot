@@ -1,6 +1,6 @@
 services:
   openclaw:
-    image: openclawai/openclaw:PIN_VERSION
+    image: openclawai/openclaw:la
     container_name: openclaw
     restart: unless-stopped
 
@@ -10,8 +10,14 @@ services:
     volumes:
       - ~/.openclaw-docker/openclaw:/home/openclaw/.openclaw
       - ~/.openclaw-docker/codex:/home/openclaw/.codex:ro
+
     environment:
       - HOME=/home/openclaw
+      - PORT=18789
+      - NODE_OPTIONS=--max-old-space-size=1024
+      - TMPDIR=/tmp
+      - XDG_CACHE_HOME=/tmp
+      - XDG_CONFIG_HOME=/home/openclaw/.openclaw
 
     cap_drop:
       - ALL
@@ -22,7 +28,7 @@ services:
       - /tmp
 
     healthcheck:
-      test: ["CMD", "sh", "-lc", "wget -qO- http://127.0.0.1:18789 >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:18789 >/dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 3s
       retries: 3

@@ -1,0 +1,9 @@
+.DS_Store
+
+# Local runtime data
+docker-data/
+
+# Local secrets and environment overrides
+.env
+.env.*
+
